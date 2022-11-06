@@ -1,3 +1,6 @@
+use ray_tracing_utils::math::Color;
+use ray_tracing_utils::color::write_pixel;
+
 fn main() {
 
     // Image
@@ -16,12 +19,8 @@ fn main() {
             let r = j as f32 / (image_width - 1) as f32;
             let g = i as f32 / (image_height - 1) as f32;
             let b = 0.25;
-
-            let r = (r * 255.999) as i32;
-            let g = (g * 255.999) as i32;
-            let b = (b * 255.999) as i32;
-
-            println!("{} {} {}", r, g, b);
+            let color = Color::new(r, g, b);
+            write_pixel(color);
         }
     }
 }

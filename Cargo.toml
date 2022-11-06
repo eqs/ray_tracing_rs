@@ -5,5 +5,9 @@ edition = "2021"
 
 [workspace]
 members = [
+    "ray_tracing_utils",
     "view"
 ]
+
+[dependencies]
+ray_tracing_utils = { path = "./ray_tracing_utils" }

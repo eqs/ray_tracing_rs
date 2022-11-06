@@ -8,6 +8,7 @@ pub struct Vec3 {
 }
 
 pub type Point3 = Vec3;
+pub type Color = Vec3;
 
 impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
