@@ -29,7 +29,7 @@ fn main() -> Result<(), Error> {
     let window = {
         let size = LogicalSize::new(WIN_WIDTH, WIN_HEIGHT);
         WindowBuilder::new()
-            .with_title("Hello Pixels")
+            .with_title("PPM viewer")
             .with_inner_size(size)
             .with_min_inner_size(size)
             .build(&event_loop)
