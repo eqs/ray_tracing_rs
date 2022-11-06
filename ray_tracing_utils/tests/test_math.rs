@@ -1,7 +1,7 @@
 use ray_tracing_utils::math::Vec3;
 
 #[test]
-fn vector_caluclation() {
+fn vector_calculation() {
     let a = Vec3::new(0.0, 2.0, 4.0);
     let b = Vec3::new(1.0, 3.0, 5.0);
     let c = Vec3::new(3.0, -3.0, 3.0);
