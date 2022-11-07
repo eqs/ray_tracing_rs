@@ -22,6 +22,10 @@ impl Vec3 {
     pub fn length_squared(self) -> f32 {
         self.x*self.x + self.y*self.y + self.z*self.z
     }
+
+    pub fn normalized(self) -> Self {
+        self / self.length()
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -89,5 +93,21 @@ impl ops::Div<f32> for Vec3 {
             y: self.y / v,
             z: self.z / v,
         }
+    }
+}
+
+#[derive(Default, Debug, Clone, Copy, PartialEq)]
+pub struct Ray {
+    pub origin: Point3,
+    pub direction: Vec3,
+}
+
+impl Ray {
+    pub fn new(origin: Point3, direction: Vec3) -> Self {
+        Ray { origin, direction }
+    }
+
+    pub fn at(self, t: f32) -> Point3 {
+        self.origin + self.direction * t
     }
 }
