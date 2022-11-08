@@ -5,6 +5,7 @@ pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f32,
+    pub front_face: bool,
 }
 
 pub trait Hittable {
@@ -40,8 +41,31 @@ impl Hittable for Sphere {
 
         let t = root;
         let p = ray.at(t);
-        let normal = (p - self.center) / self.radius;
+        let outward_normal = (p - self.center) / self.radius;
+        let front_face = ray.direction * outward_normal < 0.0;
+        let normal = if front_face { outward_normal } else { -outward_normal };
 
-        return Some(HitRecord { t, p, normal });
+        return Some(HitRecord { t, p, normal, front_face });
+    }
+}
+
+#[derive(Default)]
+pub struct HittableList {
+    pub hittables: Vec<Box<dyn Hittable>>,
+}
+
+impl Hittable for HittableList {
+    fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
+        let mut closest_so_far = t_max;
+        let mut closest_rec: Option<HitRecord> = None;
+
+        for hittable in self.hittables.iter() {
+            if let Some(rec) = hittable.hit(&ray, t_min, closest_so_far) {
+                closest_so_far = rec.t;
+                closest_rec = Some(rec);
+            }
+        }
+
+        return closest_rec;
     }
 }

@@ -1,19 +1,12 @@
 use ray_tracing_utils::math::{Vec3, Point3, Color, Ray};
 use ray_tracing_utils::color::write_pixel;
-use ray_tracing_utils::hittable::{Sphere, HitRecord, Hittable};
+use ray_tracing_utils::hittable::{Sphere, Hittable, HittableList};
 
 
-fn hit_sphere(center: Point3, radius: f32, ray: &Ray) -> Option<HitRecord> {
-    let sphere = Sphere { center, radius };
-    sphere.hit(&ray, 0.0, f32::INFINITY)
-
-}
-
-fn ray_color(ray: &Ray) -> Color {
-    match hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, &ray) {
-        Some(record) => {
-            let n = (ray.at(record.t) - Vec3::new(0.0, 0.0, -1.0)).normalized();
-            Color::new(n.x+1.0, n.y+1.0, n.z+1.0) * 0.5
+fn ray_color(ray: &Ray, world: &HittableList) -> Color {
+    match world.hit(&ray, 0.0, f32::INFINITY) {
+        Some(rec) => {
+            (rec.normal + Color::new(1.0, 1.0, 1.0)) * 0.5
         },
         None => {
             let unit_direction: Vec3 = ray.direction.normalized();
@@ -30,6 +23,14 @@ fn main() {
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 512;
     let image_height = (image_width as f32 / aspect_ratio) as i32;
+
+    // World
+
+    let hittables: Vec<Box<dyn Hittable>> = vec![
+        Box::new(Sphere { center: Point3::new(0.0, 0.0, -1.0), radius: 0.5 }),
+        Box::new(Sphere { center: Point3::new(0.0, -100.5, -1.0), radius: 100.0 }),
+    ];
+    let world = HittableList { hittables };
 
     // Camera
     let viewport_height = 2.0;
@@ -55,7 +56,7 @@ fn main() {
                 origin: origin,
                 direction: lower_left_corner + horizontal*u + vertical*v - origin
             };
-            let color = ray_color(&ray);
+            let color = ray_color(&ray, &world);
             write_pixel(color);
         }
     }
