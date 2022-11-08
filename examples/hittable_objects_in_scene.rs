@@ -3,14 +3,14 @@ use ray_tracing_utils::color::write_pixel;
 use ray_tracing_utils::hittable::{Sphere, HitRecord, Hittable};
 
 
-fn hit_sphere(center: Point3, radius: f32, ray: Ray) -> Option<HitRecord> {
+fn hit_sphere(center: Point3, radius: f32, ray: &Ray) -> Option<HitRecord> {
     let sphere = Sphere { center, radius };
     sphere.hit(&ray, 0.0, f32::INFINITY)
 
 }
 
-fn ray_color(ray: Ray) -> Color {
-    match hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, ray) {
+fn ray_color(ray: &Ray) -> Color {
+    match hit_sphere(Point3::new(0.0, 0.0, -1.0), 0.5, &ray) {
         Some(record) => {
             let n = (ray.at(record.t) - Vec3::new(0.0, 0.0, -1.0)).normalized();
             Color::new(n.x+1.0, n.y+1.0, n.z+1.0) * 0.5
@@ -55,7 +55,7 @@ fn main() {
                 origin: origin,
                 direction: lower_left_corner + horizontal*u + vertical*v - origin
             };
-            let color = ray_color(ray);
+            let color = ray_color(&ray);
             write_pixel(color);
         }
     }
