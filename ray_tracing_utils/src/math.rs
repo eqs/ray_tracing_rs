@@ -1,4 +1,5 @@
 use std::ops;
+use rand::{thread_rng, Rng};
 
 #[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Vec3 {
@@ -13,6 +14,31 @@ pub type Color = Vec3;
 impl Vec3 {
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Vec3 { x, y, z }
+    }
+
+    pub fn random() -> Self {
+        let mut rng = thread_rng();
+        let x: f32 = rng.gen();
+        let y: f32 = rng.gen();
+        let z: f32 = rng.gen();
+        Vec3 { x, y, z }
+    }
+
+    pub fn random_range(min: f32, max: f32) -> Self {
+        let mut rng = thread_rng();
+        let x: f32 = rng.gen_range(min..max);
+        let y: f32 = rng.gen_range(min..max);
+        let z: f32 = rng.gen_range(min..max);
+        Vec3 { x, y, z }
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let p = Self::random_range(-1.0, 1.0);
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
     }
 
     pub fn length(self) -> f32 {
