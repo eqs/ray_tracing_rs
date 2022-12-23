@@ -37,7 +37,7 @@ impl Image {
         let mut width: u32 = 0;
         let mut height: u32 = 0;
         for (k, result) in BufReader::new(f).lines().enumerate() {
-            let l = result.unwrap_or_else(|_| panic!("something went wrong reading the file"));
+            let l = result.unwrap_or_else(|e| panic!("something went wrong reading the file: {}", e));
             if l == "P3" {
                 println!("P3 is detected");
             } else if k == 1 {
