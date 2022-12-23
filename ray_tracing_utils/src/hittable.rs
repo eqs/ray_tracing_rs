@@ -1,30 +1,31 @@
 use crate::math::{Ray, Vec3, Point3};
+use crate::material::Material;
 
-#[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct HitRecord {
     pub p: Point3,
     pub normal: Vec3,
     pub t: f32,
     pub front_face: bool,
+    pub material: Box<dyn Material>,
 }
 
 pub trait Hittable {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord>;
 }
 
-#[derive(Default, Debug, Clone, Copy, PartialEq)]
 pub struct Sphere {
     pub center: Point3,
     pub radius: f32,
+    pub material: Box<dyn Material>,
 }
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, t_min: f32, t_max: f32) -> Option<HitRecord> {
         let oc: Vec3 = ray.origin - self.center;
 
-        let a = ray.direction * ray.direction;
-        let b = (oc * ray.direction) * 2.0;
-        let c = (oc * oc) - self.radius * self.radius;
+        let a = Vec3::dot(ray.direction, ray.direction);
+        let b = Vec3::dot(oc, ray.direction) * 2.0;
+        let c = Vec3::dot(oc, oc) - self.radius * self.radius;
         let disc = b * b - 4.0 * a * c;
 
         if disc < 0.0 {
@@ -42,10 +43,13 @@ impl Hittable for Sphere {
         let t = root;
         let p = ray.at(t);
         let outward_normal = (p - self.center) / self.radius;
-        let front_face = ray.direction * outward_normal < 0.0;
+        let front_face = Vec3::dot(ray.direction, outward_normal) < 0.0;
         let normal = if front_face { outward_normal } else { -outward_normal };
 
-        return Some(HitRecord { t, p, normal, front_face });
+        return Some(HitRecord {
+            t, p, normal, front_face,
+            material: dyn_clone::clone_box(&*self.material),
+        });
     }
 }
 

@@ -3,6 +3,7 @@ use ray_tracing_utils::math::{Vec3, Point3, Color, Ray};
 use ray_tracing_utils::color::write_pixel_sample;
 use ray_tracing_utils::hittable::{Sphere, Hittable, HittableList};
 use ray_tracing_utils::camera::Camera;
+use ray_tracing_utils::material::Lambertian;
 
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
@@ -13,10 +14,12 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
 
     match world.hit(&ray, 0.001, f32::INFINITY) {
         Some(rec) => {
-            let target: Point3 = rec.p + rec.normal + Vec3::random_lambert();
-            // let target: Point3 = rec.p + rec.normal + Vec3::random_in_hemisphere(rec.normal);
-            let diffused_ray: Ray = Ray::new(rec.p, target - rec.p);
-            ray_color(&diffused_ray, world, depth - 1) * 0.5
+            match rec.material.scatter(&ray, &rec) {
+                Some((scattered, attenuation)) => {
+                    attenuation * ray_color(&scattered, world, depth - 1) * 0.5
+                },
+                None => Color::new(0.0, 0.0, 0.0),
+            }
         },
         None => {
             let unit_direction: Vec3 = ray.direction.normalized();
@@ -39,8 +42,16 @@ fn main() {
     // World
 
     let hittables: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere { center: Point3::new(0.0, 0.0, -1.0), radius: 0.5 }),
-        Box::new(Sphere { center: Point3::new(0.0, -100.5, -1.0), radius: 100.0 }),
+        Box::new(Sphere {
+            center: Point3::new(0.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Lambertian { albedo: Color::new(0.7, 0.3, 0.3) }),
+        }),
+        Box::new(Sphere {
+            center: Point3::new(0.0, -100.5, -1.0),
+            radius: 100.0,
+            material: Box::new(Lambertian { albedo: Color::new(0.8, 0.8, 0.0) })
+        }),
     ];
     let world = HittableList { hittables };
 

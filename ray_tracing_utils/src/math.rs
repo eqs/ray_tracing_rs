@@ -41,7 +41,7 @@ impl Vec3 {
         }
     }
 
-    pub fn random_lambert() -> Self {
+    pub fn random_unit_vector() -> Self {
         let mut rng = thread_rng();
         let a: f32 = rng.gen_range(0.0..std::f32::consts::PI*2.0);
         let z: f32 = rng.gen_range(-1.0..1.0);
@@ -51,7 +51,7 @@ impl Vec3 {
 
     pub fn random_in_hemisphere(normal: Self) -> Self {
         let in_unit_sphere = Self::random_in_unit_sphere();
-        if in_unit_sphere * normal > 0.0 {
+        if Vec3::dot(in_unit_sphere, normal) > 0.0 {
             in_unit_sphere
         } else {
             -in_unit_sphere
@@ -68,6 +68,10 @@ impl Vec3 {
 
     pub fn normalized(self) -> Self {
         self / self.length()
+    }
+
+    pub fn dot(u: Self, v: Self) -> f32 {
+        u.x * v.x + u.y * v.y + u.z * v.z
     }
 }
 
@@ -108,10 +112,14 @@ impl ops::Neg for Vec3 {
 }
 
 impl ops::Mul for Vec3 {
-    type Output = f32;
+    type Output = Self;
 
-    fn mul(self, v: Self) -> f32 {
-        self.x * v.x + self.y * v.y + self.z * v.z
+    fn mul(self, v: Self) -> Self {
+        Self {
+            x: self.x * v.x,
+            y: self.y * v.y,
+            z: self.z * v.z,
+        }
     }
 }
 
