@@ -12,7 +12,7 @@ pub struct Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
+    fn scatter(&self, _ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
         let scatter_direction = rec.normal + Vec3::random_unit_vector();
         let scattered: Ray = Ray::new(rec.p, scatter_direction);
         let attenuation: Color = self.albedo;
