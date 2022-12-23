@@ -20,3 +20,18 @@ impl Material for Lambertian {
         Some((scattered, attenuation))
     }
 }
+
+#[derive(Clone)]
+pub struct Metal {
+    pub albedo: Color,
+}
+
+impl Material for Metal {
+    fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
+        let reflected = Vec3::reflect(ray.direction.normalized(), rec.normal);
+        let scattered = Ray::new(rec.p, reflected);
+        let attenuation = self.albedo;
+
+        Some((scattered, attenuation))
+    }
+}

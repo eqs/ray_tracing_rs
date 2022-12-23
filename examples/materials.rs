@@ -3,7 +3,7 @@ use ray_tracing_utils::math::{Vec3, Point3, Color, Ray};
 use ray_tracing_utils::color::write_pixel_sample;
 use ray_tracing_utils::hittable::{Sphere, Hittable, HittableList};
 use ray_tracing_utils::camera::Camera;
-use ray_tracing_utils::material::Lambertian;
+use ray_tracing_utils::material::{Lambertian, Metal};
 
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
@@ -51,6 +51,16 @@ fn main() {
             center: Point3::new(0.0, -100.5, -1.0),
             radius: 100.0,
             material: Box::new(Lambertian { albedo: Color::new(0.8, 0.8, 0.0) })
+        }),
+        Box::new(Sphere {
+            center: Point3::new(1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Metal { albedo: Color::new(0.8, 0.6, 0.2) }),
+        }),
+        Box::new(Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Metal { albedo: Color::new(0.8, 0.8, 0.8) }),
         }),
     ];
     let world = HittableList { hittables };
