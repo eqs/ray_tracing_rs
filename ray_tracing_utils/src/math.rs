@@ -41,6 +41,14 @@ impl Vec3 {
         }
     }
 
+    pub fn random_lambert() -> Self {
+        let mut rng = thread_rng();
+        let a: f32 = rng.gen_range(0.0..std::f32::consts::PI*2.0);
+        let z: f32 = rng.gen_range(-1.0..1.0);
+        let r: f32 = (1.0 - z*z).sqrt();
+        Vec3 { x: r * a.cos(), y: r * a.sin(), z: z }
+    }
+
     pub fn length(self) -> f32 {
         (self.x*self.x + self.y*self.y + self.z*self.z).sqrt()
     }
