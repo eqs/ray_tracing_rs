@@ -49,6 +49,15 @@ impl Vec3 {
         Vec3 { x: r * a.cos(), y: r * a.sin(), z: z }
     }
 
+    pub fn random_in_hemisphere(normal: Self) -> Self {
+        let in_unit_sphere = Self::random_in_unit_sphere();
+        if in_unit_sphere * normal > 0.0 {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
+    }
+
     pub fn length(self) -> f32 {
         (self.x*self.x + self.y*self.y + self.z*self.z).sqrt()
     }
