@@ -6,7 +6,7 @@ pub trait Material: DynClone {
     fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)>;
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct Lambertian {
     pub albedo: Color,
 }
@@ -21,15 +21,17 @@ impl Material for Lambertian {
     }
 }
 
-#[derive(Clone)]
+#[derive(Default, Clone)]
 pub struct Metal {
+    pub fuzz: f32,
     pub albedo: Color,
 }
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
         let reflected = Vec3::reflect(ray.direction.normalized(), rec.normal);
-        let scattered = Ray::new(rec.p, reflected);
+        let fuzziness = self.fuzz * Vec3::random_in_unit_sphere();
+        let scattered = Ray::new(rec.p, reflected + fuzziness);
         let attenuation = self.albedo;
 
         Some((scattered, attenuation))
