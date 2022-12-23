@@ -11,7 +11,7 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
         return Color::new(0.0, 0.0, 0.0);
     }
 
-    match world.hit(&ray, 0.0, f32::INFINITY) {
+    match world.hit(&ray, 0.001, f32::INFINITY) {
         Some(rec) => {
             let target: Point3 = rec.p + rec.normal + Vec3::random_in_unit_sphere();
             let diffused_ray: Ray = Ray::new(rec.p, target - rec.p);
