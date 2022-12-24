@@ -16,7 +16,7 @@ fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
         Some(rec) => {
             match rec.material.scatter(&ray, &rec) {
                 Some((scattered, attenuation)) => {
-                    attenuation * ray_color(&scattered, world, depth - 1) * 0.5
+                    attenuation * ray_color(&scattered, world, depth - 1)
                 },
                 None => Color::new(0.0, 0.0, 0.0),
             }
