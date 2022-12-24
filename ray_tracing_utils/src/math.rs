@@ -77,6 +77,13 @@ impl Vec3 {
     pub fn reflect(v: Self, n: Self) -> Self {
         v - 2.0 * Vec3::dot(v, n) * n
     }
+
+    pub fn refract(v: Self, n: Self, etai_over_etat: f32) -> Self {
+        let cos_theta = Self::dot(-v, n);
+        let r_out_parallel = etai_over_etat * (v + cos_theta * n);
+        let r_out_prep = -(1.0 - r_out_parallel.length_squared()).sqrt() * n;
+        r_out_parallel + r_out_prep
+    }
 }
 
 impl ops::Add<Vec3> for Vec3 {
@@ -177,6 +184,10 @@ impl Ray {
     pub fn at(self, t: f32) -> Point3 {
         self.origin + self.direction * t
     }
+}
+
+pub fn minval(x: f32, y: f32) -> f32 {
+    if x < y  { x } else { y }
 }
 
 pub fn clamp(x: f32, min: f32, max: f32) -> f32 {

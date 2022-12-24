@@ -3,7 +3,7 @@ use ray_tracing_utils::math::{Vec3, Point3, Color, Ray};
 use ray_tracing_utils::color::write_pixel_sample;
 use ray_tracing_utils::hittable::{Sphere, Hittable, HittableList};
 use ray_tracing_utils::camera::Camera;
-use ray_tracing_utils::material::{Lambertian, Metal};
+use ray_tracing_utils::material::{Lambertian, Metal, Dielectric};
 
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
@@ -37,7 +37,7 @@ fn main() {
     let image_width = 384;
     let image_height = (image_width as f32 / aspect_ratio) as i32;
     let samples_per_pixel = 100;
-    let max_depth = 20;
+    let max_depth = 50;
 
     // World
 
@@ -63,9 +63,8 @@ fn main() {
         Box::new(Sphere {
             center: Point3::new(-1.0, 0.0, -1.0),
             radius: 0.5,
-            material: Box::new(Metal {
-                fuzz: 0.3,
-                albedo: Color::new(0.8, 0.8, 0.8)
+            material: Box::new(Dielectric {
+                ref_idx: 2.4,
             }),
         }),
     ];
