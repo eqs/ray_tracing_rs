@@ -34,6 +34,10 @@ impl Material for Metal {
         let scattered = Ray::new(rec.p, reflected + fuzziness);
         let attenuation = self.albedo;
 
-        Some((scattered, attenuation))
+        if Vec3::dot(scattered.direction, rec.normal) > 0.0 {
+            Some((scattered, attenuation))
+        } else {
+            None
+        }
     }
 }
