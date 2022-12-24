@@ -67,13 +67,20 @@ impl Material for Dielectric {
         if etai_over_etat * sin_theta > 1.0 {
             let reflected = reflect(unit_direction, rec.normal);
             let scattered = Ray::new(rec.p, reflected);
-            Some((scattered, attenuation))
-        } else {
-
-            let refracted = refract(unit_direction, rec.normal, etai_over_etat);
-            let scattered = Ray::new(rec.p, refracted);
-            Some((scattered, attenuation))
+            return Some((scattered, attenuation));
         }
+
+        let reflect_prob = schlick(cos_theta, etai_over_etat);
+        let r: f32 = rand::random();
+        if r < reflect_prob {
+            let reflected = reflect(unit_direction, rec.normal);
+            let scattered = Ray::new(rec.p, reflected);
+            return Some((scattered, attenuation));
+        }
+
+        let refracted = refract(unit_direction, rec.normal, etai_over_etat);
+        let scattered = Ray::new(rec.p, refracted);
+        return Some((scattered, attenuation));
     }
 }
 
@@ -82,4 +89,10 @@ pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
     let r_out_parallel = etai_over_etat * (v + cos_theta * n);
     let r_out_prep = -(1.0 - r_out_parallel.length_squared()).sqrt() * n;
     r_out_parallel + r_out_prep
+}
+
+pub fn schlick(cosine: f32, ref_idx: f32) -> f32 {
+    let r0 = (1.0 - ref_idx) / (1.0 + ref_idx);
+    let r0 = r0 * r0;
+    r0 + (1.0 - r0) * (1.0 - cosine).powi(5)
 }
