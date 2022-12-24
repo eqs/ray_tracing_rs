@@ -73,17 +73,6 @@ impl Vec3 {
     pub fn dot(u: Self, v: Self) -> f32 {
         u.x * v.x + u.y * v.y + u.z * v.z
     }
-
-    pub fn reflect(v: Self, n: Self) -> Self {
-        v - 2.0 * Vec3::dot(v, n) * n
-    }
-
-    pub fn refract(v: Self, n: Self, etai_over_etat: f32) -> Self {
-        let cos_theta = Self::dot(-v, n);
-        let r_out_parallel = etai_over_etat * (v + cos_theta * n);
-        let r_out_prep = -(1.0 - r_out_parallel.length_squared()).sqrt() * n;
-        r_out_parallel + r_out_prep
-    }
 }
 
 impl ops::Add<Vec3> for Vec3 {

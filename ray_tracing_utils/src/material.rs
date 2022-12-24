@@ -29,7 +29,7 @@ pub struct Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Color)> {
-        let reflected = Vec3::reflect(ray.direction.normalized(), rec.normal);
+        let reflected = reflect(ray.direction.normalized(), rec.normal);
         let fuzziness = self.fuzz * Vec3::random_in_unit_sphere();
         let scattered = Ray::new(rec.p, reflected + fuzziness);
         let attenuation = self.albedo;
@@ -40,6 +40,10 @@ impl Material for Metal {
             None
         }
     }
+}
+
+pub fn reflect(v: Vec3, n: Vec3) -> Vec3 {
+    v - 2.0 * Vec3::dot(v, n) * n
 }
 
 #[derive(Default, Clone)]
@@ -61,14 +65,21 @@ impl Material for Dielectric {
         let sin_theta = (1.0 - cos_theta*cos_theta).sqrt();
 
         if etai_over_etat * sin_theta > 1.0 {
-            let reflected = Vec3::reflect(unit_direction, rec.normal);
+            let reflected = reflect(unit_direction, rec.normal);
             let scattered = Ray::new(rec.p, reflected);
             Some((scattered, attenuation))
         } else {
 
-            let refracted = Vec3::refract(unit_direction, rec.normal, etai_over_etat);
+            let refracted = refract(unit_direction, rec.normal, etai_over_etat);
             let scattered = Ray::new(rec.p, refracted);
             Some((scattered, attenuation))
         }
     }
+}
+
+pub fn refract(v: Vec3, n: Vec3, etai_over_etat: f32) -> Vec3 {
+    let cos_theta = Vec3::dot(-v, n);
+    let r_out_parallel = etai_over_etat * (v + cos_theta * n);
+    let r_out_prep = -(1.0 - r_out_parallel.length_squared()).sqrt() * n;
+    r_out_parallel + r_out_prep
 }
