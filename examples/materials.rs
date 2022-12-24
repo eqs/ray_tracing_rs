@@ -67,6 +67,13 @@ fn main() {
                 ref_idx: 2.4,
             }),
         }),
+        Box::new(Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            material: Box::new(Dielectric {
+                ref_idx: 2.4,
+            }),
+        }),
     ];
     let world = HittableList { hittables };
 
