@@ -41,6 +41,16 @@ impl Vec3 {
         }
     }
 
+    pub fn random_in_unit_disk() -> Self {
+        loop {
+            let mut p = Self::random_range(-1.0, 1.0);
+            p.z = 0.0;
+            if p.length_squared() < 1.0 {
+                return p;
+            }
+        }
+    }
+
     pub fn random_unit_vector() -> Self {
         let mut rng = thread_rng();
         let a: f32 = rng.gen_range(0.0..std::f32::consts::PI*2.0);
@@ -72,6 +82,14 @@ impl Vec3 {
 
     pub fn dot(u: Self, v: Self) -> f32 {
         u.x * v.x + u.y * v.y + u.z * v.z
+    }
+
+    pub fn cross(u: Self, v: Self) -> Self {
+        Self {
+            x: u.y * v.z - u.z * v.y,
+            y: u.z * v.x - u.x * v.z,
+            z: u.x * v.y - u.y * v.x,
+        }
     }
 }
 

@@ -41,26 +41,59 @@ fn main() {
 
     // World
 
-    let r = (std::f32::consts::PI / 4.0).cos();
     let hittables: Vec<Box<dyn Hittable>> = vec![
         Box::new(Sphere {
-            center: Point3::new(r, 0.0, -1.0),
-            radius: r,
-            material: Box::new(Lambertian { albedo: Color::new(0.0, 0.0, 1.0) }),
+            center: Point3::new(0.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Lambertian { albedo: Color::new(0.7, 0.3, 0.3) }),
         }),
         Box::new(Sphere {
-            center: Point3::new(-r, 0.0, -1.0),
-            radius: r,
-            material: Box::new(Lambertian { albedo: Color::new(1.0, 0.0, 0.0) }),
+            center: Point3::new(0.0, -100.5, -1.0),
+            radius: 100.0,
+            material: Box::new(Lambertian { albedo: Color::new(0.8, 0.8, 0.0) })
+        }),
+        Box::new(Sphere {
+            center: Point3::new(1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Metal {
+                fuzz: 1.0,
+                albedo: Color::new(0.8, 0.6, 0.2)
+            }),
+        }),
+        Box::new(Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: 0.5,
+            material: Box::new(Dielectric {
+                ref_idx: 2.4,
+            }),
+        }),
+        Box::new(Sphere {
+            center: Point3::new(-1.0, 0.0, -1.0),
+            radius: -0.45,
+            material: Box::new(Dielectric {
+                ref_idx: 2.4,
+            }),
         }),
     ];
     let world = HittableList { hittables };
 
     // Camera
-    let origin = Point3::new(0.0, 0.0, 0.0);
-    let vfov = std::f32::consts::PI / 2.0;
-    let focal_length = 1.0;
-    let camera = Camera::new(origin, vfov, aspect_ratio, focal_length);
+    let lookfrom = Point3::new(3.0, 3.0, 2.0);
+    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let vup = Point3::new(0.0, 1.0, 0.0);
+    let vfov = std::f32::consts::PI / 9.0;
+    let dist_to_focus = (lookfrom - lookat).length();
+    let aperture = 2.0;
+
+    let camera = Camera::new(
+        lookfrom,
+        lookat,
+        vup,
+        vfov,
+        aspect_ratio,
+        aperture,
+        dist_to_focus,
+    );
 
     // Render
 
