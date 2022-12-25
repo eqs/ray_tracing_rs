@@ -11,4 +11,5 @@ members = [
 
 [dependencies]
 rand = "0.8.5"
+indicatif = "0.17.2"
 ray_tracing_utils = { path = "./ray_tracing_utils" }

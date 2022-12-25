@@ -1,10 +1,101 @@
 use rand::prelude::*;
+use indicatif::{ProgressBar, ProgressStyle};
 use ray_tracing_utils::math::{Vec3, Point3, Color, Ray};
 use ray_tracing_utils::color::write_pixel_sample;
 use ray_tracing_utils::hittable::{Sphere, Hittable, HittableList};
 use ray_tracing_utils::camera::Camera;
 use ray_tracing_utils::material::{Lambertian, Metal, Dielectric};
 
+fn random_scene() -> HittableList {
+
+    let mut hittables: Vec<Box<dyn Hittable>> = vec![];
+    hittables.push(
+        Box::new(Sphere {
+            center: Point3::new(0.0, -1000.0, 0.0),
+            radius: 1000.0,
+            material: Box::new(Lambertian {
+                albedo: Color::new(0.5, 0.5, 0.5)
+            }),
+        })
+    );
+
+    for i in -11..=11 {
+        for j in -11..=11 {
+            let choose_material: f32 = rand::random();
+            let center: Point3 = Point3::new(
+                i as f32 + 0.9 * rand::random::<f32>(),
+                0.2,
+                j as f32 + 0.9 * rand::random::<f32>(),
+            );
+
+            if (center - Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_material < 0.8 {
+                    let albedo = Color::random();
+                    let material = Lambertian { albedo };
+                    hittables.push(
+                        Box::new(Sphere {
+                            center,
+                            radius: 0.2,
+                            material: Box::new(material),
+                        })
+                    );
+                } else if choose_material < 0.95 {
+                    let albedo = Color::random_range(0.5, 1.0);
+                    let fuzz: f32 = rand::thread_rng().gen_range(0.0..0.5);
+                    let material = Metal { albedo, fuzz };
+                    hittables.push(
+                        Box::new(Sphere {
+                            center,
+                            radius: 0.2,
+                            material: Box::new(material),
+                        })
+                    );
+                } else {
+                    let material = Dielectric { ref_idx: 1.5 };
+                    hittables.push(
+                        Box::new(Sphere {
+                            center,
+                            radius: 0.2,
+                            material: Box::new(material),
+                        })
+                    );
+
+                }
+            }
+        }
+    }
+
+    hittables.push(
+        Box::new(Sphere {
+            center: Point3::new(0.0, 1.0, 0.0),
+            radius: 1.0,
+            material: Box::new(Dielectric {
+                ref_idx: 1.5,
+            }),
+        })
+    );
+    hittables.push(
+        Box::new(Sphere {
+            center: Point3::new(-4.0, 1.0, 0.0),
+            radius: 1.0,
+            material: Box::new(Lambertian {
+                albedo: Color::new(0.4, 0.2, 0.1),
+            }),
+        })
+    );
+    hittables.push(
+        Box::new(Sphere {
+            center: Point3::new(4.0, 1.0, 0.0),
+            radius: 1.0,
+            material: Box::new(Metal {
+                albedo: Color::new(0.7, 0.6, 0.5),
+                fuzz: 0.0,
+            }),
+        })
+    );
+
+    HittableList { hittables }
+}
 
 fn ray_color(ray: &Ray, world: &HittableList, depth: i32) -> Color {
 
@@ -40,50 +131,15 @@ fn main() {
     let max_depth = 50;
 
     // World
-
-    let hittables: Vec<Box<dyn Hittable>> = vec![
-        Box::new(Sphere {
-            center: Point3::new(0.0, 0.0, -1.0),
-            radius: 0.5,
-            material: Box::new(Lambertian { albedo: Color::new(0.7, 0.3, 0.3) }),
-        }),
-        Box::new(Sphere {
-            center: Point3::new(0.0, -100.5, -1.0),
-            radius: 100.0,
-            material: Box::new(Lambertian { albedo: Color::new(0.8, 0.8, 0.0) })
-        }),
-        Box::new(Sphere {
-            center: Point3::new(1.0, 0.0, -1.0),
-            radius: 0.5,
-            material: Box::new(Metal {
-                fuzz: 1.0,
-                albedo: Color::new(0.8, 0.6, 0.2)
-            }),
-        }),
-        Box::new(Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: 0.5,
-            material: Box::new(Dielectric {
-                ref_idx: 2.4,
-            }),
-        }),
-        Box::new(Sphere {
-            center: Point3::new(-1.0, 0.0, -1.0),
-            radius: -0.45,
-            material: Box::new(Dielectric {
-                ref_idx: 2.4,
-            }),
-        }),
-    ];
-    let world = HittableList { hittables };
+    let world = random_scene();
 
     // Camera
-    let lookfrom = Point3::new(3.0, 3.0, 2.0);
-    let lookat = Point3::new(0.0, 0.0, -1.0);
+    let lookfrom = Point3::new(13.0, 2.0, 3.0);
+    let lookat = Point3::new(0.0, 0.0, 0.0);
     let vup = Point3::new(0.0, 1.0, 0.0);
     let vfov = std::f32::consts::PI / 9.0;
-    let dist_to_focus = (lookfrom - lookat).length();
-    let aperture = 2.0;
+    let dist_to_focus = 10.0;
+    let aperture = 0.1;
 
     let camera = Camera::new(
         lookfrom,
@@ -103,6 +159,13 @@ fn main() {
     println!("{} {}", image_width, image_height);
     println!("255");
 
+    let pb = ProgressBar::new((image_height * image_width).try_into().unwrap());
+    pb.set_style(
+        ProgressStyle::with_template(
+            "[{elapsed_precise}] [{bar:40.cyan/blue}] ({pos}/{len})"
+        ).unwrap()
+    );
+
     for i in (0..image_height).rev() {
         for j in 0..image_width {
             let mut pixel_color: Color = Color::new(0.0, 0.0, 0.0);
@@ -114,8 +177,10 @@ fn main() {
                 let ray = camera.get_ray(u, v);
                 pixel_color = pixel_color + ray_color(&ray, &world, max_depth);
             }
-
             write_pixel_sample(pixel_color, samples_per_pixel);
+            pb.inc(1);
         }
     }
+
+    pb.finish_with_message("done");
 }
